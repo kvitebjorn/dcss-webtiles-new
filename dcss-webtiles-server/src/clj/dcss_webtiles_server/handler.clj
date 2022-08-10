@@ -1,8 +1,8 @@
 (ns dcss-webtiles-server.handler
   (:require
     [dcss-webtiles-server.middleware :as middleware]
-    [dcss-webtiles-server.layout :refer [error-page]]
-    [dcss-webtiles-server.routes.home :refer [home-routes]]
+    [dcss-webtiles-server.routes.services :refer [service-routes]]
+    [reitit.swagger-ui :as swagger-ui]
     [reitit.ring :as ring]
     [ring.middleware.content-type :refer [wrap-content-type]]
     [ring.middleware.webjars :refer [wrap-webjars]]
@@ -17,19 +17,14 @@
   :start
   (ring/ring-handler
     (ring/router
-      [(home-routes)])
+      [["/" {:get
+             {:handler (constantly {:status 301 :headers {"Location" "/api/api-docs/index.html"}}) }}]
+       (service-routes)])
     (ring/routes
       (ring/create-resource-handler
         {:path "/"})
-      (wrap-content-type
-        (wrap-webjars (constantly nil)))
-      (ring/create-default-handler
-        {:not-found
-         (constantly (error-page {:status 404, :title "404 - Page not found"}))
-         :method-not-allowed
-         (constantly (error-page {:status 405, :title "405 - Not allowed"}))
-         :not-acceptable
-         (constantly (error-page {:status 406, :title "406 - Not acceptable"}))}))))
+      (wrap-content-type (wrap-webjars (constantly nil)))
+      (ring/create-default-handler))))
 
 (defn app []
   (middleware/wrap-base #'app-routes))
