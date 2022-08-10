@@ -1,0 +1,1 @@
+web: java -Dclojure.main.report=stderr -cp target/uberjar/dcss-webtiles-server.jar clojure.main -m dcss-webtiles-server.core
